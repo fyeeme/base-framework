@@ -13,7 +13,7 @@ class RedisServiceProvider implements ServiceProviderInterface
     {
         $app['redis.default_options'] = array(
             'host' => '127.0.0.1:6379',
-            'password' => '',
+            'auth' => '',
             'timeout' => 1,
             'reserved' => null,
             'retry_interval' => 100,
@@ -66,12 +66,23 @@ class RedisServiceProvider implements ServiceProviderInterface
                         $redis = new RedisArray($hosts);
                     }
 
-                    $redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
                     if ($options['key_prefix']) {
                         $redis->setOption(Redis::OPT_PREFIX, $options['key_prefix']);
                     }
-                    if (!empty($options['password'])) {
-                        $redis->auth($options['password']);
+                    if (!empty($options['auth'])) {
+                        $redis->auth($options['auth']);
+                    }
+
+                    if (!empty($options['database'])) {
+                        $redis->select($options['database']);
+                    }
+
+                    if (!empty($options['serializer_igbinary'])) {
+                        $redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_IGBINARY);
+                    }
+
+                    if (!empty($options['serializer_php'])) {
+                        $redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
                     }
 
                     return $redis;

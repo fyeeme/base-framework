@@ -30,6 +30,7 @@ class DoctrineServiceProvider implements ServiceProviderInterface
     public function register(Container $app)
     {
         $app['db.default_options'] = array(
+            'url'=> null,
             'driver' => 'pdo_mysql',
             'dbname' => null,
             'host' => 'localhost',
@@ -54,6 +55,22 @@ class DoctrineServiceProvider implements ServiceProviderInterface
             $tmp = $app['dbs.options'];
             foreach ($tmp as $name => &$options) {
                 $options = array_replace($app['db.default_options'], $options);
+
+                foreach (array(
+                     'options' => 'driverOptions',
+                     'driver_class' => 'driverClass',
+                     'wrapper_class' => 'wrapperClass',
+                     'keep_slave' => 'keepSlave',
+                     'shard_choser' => 'shardChoser',
+                     'shard_manager_class' => 'shardManagerClass',
+                     'server_version' => 'serverVersion',
+                     'default_table_options' => 'defaultTableOptions',
+                     ) as $old => $new) {
+                    if (isset($options[$old])) {
+                        $options[$new] = $options[$old];
+                        unset($options[$old]);
+                    }
+                }
 
                 if (!isset($app['dbs.default'])) {
                     $app['dbs.default'] = $name;
